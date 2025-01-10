@@ -84,3 +84,75 @@ GROUP BY track
 ORDER BY total_engagement DESC
 LIMIT 3;
 ```
+
+### 2. How does engagement vary across different channels or platforms?
+
+```sql
+SELECT channel, AVG(likes + comments + views) AS avg_engagement
+FROM spotify
+GROUP BY channel
+ORDER BY avg_engagement DESC
+LIMIT 3;
+```
+
+### 2. How does engagement vary across different channels or platforms?
+
+```sql
+SELECT channel, AVG(likes + comments + views) AS avg_engagement
+FROM spotify
+GROUP BY channel
+ORDER BY avg_engagement DESC
+LIMIT 3;
+```
+
+### 3. What is the optimal track duration for maximizing streams and engagement?
+
+
+```sql
+SELECT duration_min, AVG(stream) AS avg_streams, AVG(likes + comments) AS avg_engagement
+FROM spotify
+GROUP BY duration_min
+ORDER BY avg_streams DESC
+LIMIT 10;
+```
+
+
+### 4. Are licensed tracks associated with higher streams or engagement compared to non-licensed ones?
+
+
+```sql
+SELECT licensed, AVG(stream) AS avg_streams, AVG(likes + comments) AS avg_engagement
+FROM spotify
+GROUP BY licensed
+ORDER BY avg_streams DESC;
+
+```
+
+### 5. Retrieve the track names streamed on Spotify more than YouTube.
+
+```sql
+SELECT track, artist, stream AS spotify_streams, views AS youtube_views
+FROM spotify
+WHERE stream > views;
+```
+
+
+
+```sql
+SELECT duration_min, AVG(stream) AS avg_streams, AVG(likes + comments) AS avg_engagement
+FROM spotify
+GROUP BY duration_min
+ORDER BY avg_streams DESC
+LIMIT 10;
+```
+
+
+
+```sql
+SELECT duration_min, AVG(stream) AS avg_streams, AVG(likes + comments) AS avg_engagement
+FROM spotify
+GROUP BY duration_min
+ORDER BY avg_streams DESC
+LIMIT 10;
+```
+
