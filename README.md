@@ -1,6 +1,6 @@
 # Spotify_data_analysis
  Data analysis project exploring Spotify tracks, engagement, and insights using SQL queries.
-![Spotify vs YouTube Streams](images/spotify_vs_youtube_streams.png)
+![Spotify vs YouTube Streams](images/spotify.jpeg)
 
 
 
