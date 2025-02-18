@@ -1,12 +1,8 @@
-# Spotify_data_analysis
- Data analysis project exploring Spotify tracks, engagement, and insights using SQL queries.
-![Spotify vs YouTube Streams](/spotify.jpeg)
-
-
-
 # Spotify Data Analysis Project 🎵
 
 This project analyzes Spotify data using SQL to extract insights about engagement, track performance, and platform optimization strategies. The analysis includes queries on track popularity, artist performance, and various audio features like danceability and valence.
+
+![Spotify vs YouTube Streams](/spotify.jpeg)
 
 ## Table of Contents
 - [Introduction](#introduction)
@@ -63,8 +59,8 @@ CREATE TABLE spotify (
     energy_liveness FLOAT,
     most_played_on VARCHAR(50)
 );
-
 ```
+
 ## Project Objectives
 - Identify the most engaging tracks and artists.
 - Analyze engagement trends across platforms.
@@ -86,7 +82,6 @@ LIMIT 3;
 ```
 
 ### 2. How does engagement vary across different channels or platforms?
-
 ```sql
 SELECT channel, AVG(likes + comments + views) AS avg_engagement
 FROM spotify
@@ -95,9 +90,7 @@ ORDER BY avg_engagement DESC
 LIMIT 3;
 ```
 
-
 ### 3. What is the optimal track duration for maximizing streams and engagement?
-
 ```sql
 SELECT duration_min, AVG(stream) AS avg_streams, AVG(likes + comments) AS avg_engagement
 FROM spotify
@@ -106,19 +99,15 @@ ORDER BY avg_streams DESC
 LIMIT 10;
 ```
 
-
 ### 4. Are licensed tracks associated with higher streams or engagement compared to non-licensed ones?
-
 ```sql
 SELECT licensed, AVG(stream) AS avg_streams, AVG(likes + comments) AS avg_engagement
 FROM spotify
 GROUP BY licensed
 ORDER BY avg_streams DESC;
-
 ```
 
 ### 5. Retrieve the track names streamed on Spotify more than YouTube.
-
 ```sql
 SELECT track, artist, stream AS spotify_streams, views AS youtube_views
 FROM spotify
@@ -126,7 +115,6 @@ WHERE stream > views;
 ```
 
 ### 6. Top 3 Tracks per Artist Based on Engagement
-
 ```sql
 WITH RankedTracks AS (
     SELECT 
@@ -139,11 +127,9 @@ WITH RankedTracks AS (
 SELECT artist, track, total_engagement
 FROM RankedTracks
 WHERE rank <= 3;
-
 ```
 
 ### 7. Identify One-Hit-Wonder Artists
-
 ```sql
 WITH Top100 AS (
     SELECT artist, track, stream,
@@ -155,10 +141,9 @@ FROM Top100
 WHERE track_rank <= 100
 GROUP BY artist
 HAVING COUNT(track) = 1;
-
 ```
-### 8. Most "Overrated" Tracks (High Likes but Low Streams
 
+### 8. Most "Overrated" Tracks (High Likes but Low Streams)
 ```sql
 SELECT track, artist, likes, stream,
        (likes::DECIMAL / NULLIF(stream, 0)) AS like_to_stream_ratio
@@ -166,10 +151,9 @@ FROM spotify
 WHERE stream < (SELECT AVG(stream) FROM spotify)
 ORDER BY like_to_stream_ratio DESC
 LIMIT 10;
-
 ```
-### 9. Top Artists with Consistent Monthly Growth
 
+### 9. Top Artists with Consistent Monthly Growth
 ```sql
 WITH MonthlyGrowth AS (
     SELECT artist, stream_month, total_streams,
@@ -186,11 +170,9 @@ FROM MonthlyGrowth
 WHERE total_streams > prev_month_streams AND prev_month_streams > two_months_ago_streams
 GROUP BY artist
 ORDER BY growth_streak DESC;
-
 ```
+
 ### 10. Which types of tracks (by danceability, energy, valence) perform better in terms of streams or engagement?
-
-
 ```sql
 SELECT 
     CASE 
@@ -204,11 +186,9 @@ SELECT
 FROM spotify
 GROUP BY track_type
 ORDER BY avg_engagement DESC;
-
 ```
 
-### 11 . Do acoustic tracks (high acousticness) tend to attract more comments or likes compared to energetic tracks?
-
+### 11. Do acoustic tracks (high acousticness) tend to attract more comments or likes compared to energetic tracks?
 ```sql
 SELECT 
     CASE 
@@ -223,11 +203,22 @@ ORDER BY avg_engagement DESC;
 ```
 
 ### 12. Is there a relationship between track duration and audience engagement across album types?
-
 ```sql
 SELECT album_type, duration_min, AVG(likes + comments) AS avg_engagement
 FROM spotify
 GROUP BY album_type, duration_min
 ORDER BY avg_engagement DESC;
-
 ```
+
+---
+
+## Technologies Used
+- SQL
+- PostgreSQL
+- Python (for visualization, optional)
+
+## Contributing
+Contributions are welcome! Feel free to open a pull request.
+
+## License
+This project is open-source and available under the MIT License.
