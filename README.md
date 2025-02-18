@@ -95,18 +95,8 @@ ORDER BY avg_engagement DESC
 LIMIT 3;
 ```
 
-### 2. How does engagement vary across different channels or platforms?
-
-```sql
-SELECT channel, AVG(likes + comments + views) AS avg_engagement
-FROM spotify
-GROUP BY channel
-ORDER BY avg_engagement DESC
-LIMIT 3;
-```
 
 ### 3. What is the optimal track duration for maximizing streams and engagement?
-
 
 ```sql
 SELECT duration_min, AVG(stream) AS avg_streams, AVG(likes + comments) AS avg_engagement
@@ -118,7 +108,6 @@ LIMIT 10;
 
 
 ### 4. Are licensed tracks associated with higher streams or engagement compared to non-licensed ones?
-
 
 ```sql
 SELECT licensed, AVG(stream) AS avg_streams, AVG(likes + comments) AS avg_engagement
@@ -136,23 +125,109 @@ FROM spotify
 WHERE stream > views;
 ```
 
+### 6. Top 3 Tracks per Artist Based on Engagement
+
+```sql
+WITH RankedTracks AS (
+    SELECT 
+        artist, 
+        track, 
+        (likes + comments + views) AS total_engagement,
+        RANK() OVER (PARTITION BY artist ORDER BY (likes + comments + views) DESC) AS rank
+    FROM spotify
+)
+SELECT artist, track, total_engagement
+FROM RankedTracks
+WHERE rank <= 3;
+
+```
+
+### 7. Identify One-Hit-Wonder Artists
+
+```sql
+WITH Top100 AS (
+    SELECT artist, track, stream,
+           RANK() OVER (ORDER BY stream DESC) AS track_rank
+    FROM spotify
+)
+SELECT artist
+FROM Top100
+WHERE track_rank <= 100
+GROUP BY artist
+HAVING COUNT(track) = 1;
+
+```
+### 8. Most "Overrated" Tracks (High Likes but Low Streams
+
+```sql
+SELECT track, artist, likes, stream,
+       (likes::DECIMAL / NULLIF(stream, 0)) AS like_to_stream_ratio
+FROM spotify
+WHERE stream < (SELECT AVG(stream) FROM spotify)
+ORDER BY like_to_stream_ratio DESC
+LIMIT 10;
+
+```
+### 9. Top Artists with Consistent Monthly Growth
+
+```sql
+WITH MonthlyGrowth AS (
+    SELECT artist, stream_month, total_streams,
+           LAG(total_streams, 1) OVER (PARTITION BY artist ORDER BY stream_month) AS prev_month_streams,
+           LAG(total_streams, 2) OVER (PARTITION BY artist ORDER BY stream_month) AS two_months_ago_streams
+    FROM (
+        SELECT artist, DATE_TRUNC('month', stream_date) AS stream_month, SUM(stream) AS total_streams
+        FROM spotify_streams
+        GROUP BY artist, stream_month
+    ) AS MonthlyData
+)
+SELECT artist, COUNT(*) AS growth_streak
+FROM MonthlyGrowth
+WHERE total_streams > prev_month_streams AND prev_month_streams > two_months_ago_streams
+GROUP BY artist
+ORDER BY growth_streak DESC;
+
+```
+### 10. Which types of tracks (by danceability, energy, valence) perform better in terms of streams or engagement?
 
 
 ```sql
-SELECT duration_min, AVG(stream) AS avg_streams, AVG(likes + comments) AS avg_engagement
+SELECT 
+    CASE 
+        WHEN danceability > 0.7 THEN 'Danceable'
+        WHEN energy > 0.7 THEN 'High Energy'
+        WHEN valence > 0.7 THEN 'Positive Mood'
+        ELSE 'Other'
+    END AS track_type,
+    AVG(stream) AS avg_streams,
+    AVG(likes + comments) AS avg_engagement
 FROM spotify
-GROUP BY duration_min
-ORDER BY avg_streams DESC
-LIMIT 10;
+GROUP BY track_type
+ORDER BY avg_engagement DESC;
+
 ```
 
-
+### 11 . Do acoustic tracks (high acousticness) tend to attract more comments or likes compared to energetic tracks?
 
 ```sql
-SELECT duration_min, AVG(stream) AS avg_streams, AVG(likes + comments) AS avg_engagement
+SELECT 
+    CASE 
+        WHEN acousticness > 0.7 THEN 'Acoustic'
+        WHEN energy > 0.7 THEN 'Energetic'
+        ELSE 'Other'
+    END AS track_type,
+    AVG(likes + comments) AS avg_engagement
 FROM spotify
-GROUP BY duration_min
-ORDER BY avg_streams DESC
-LIMIT 10;
+GROUP BY track_type
+ORDER BY avg_engagement DESC;
 ```
 
+### 12. Is there a relationship between track duration and audience engagement across album types?
+
+```sql
+SELECT album_type, duration_min, AVG(likes + comments) AS avg_engagement
+FROM spotify
+GROUP BY album_type, duration_min
+ORDER BY avg_engagement DESC;
+
+```
